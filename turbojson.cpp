@@ -1,7 +1,5 @@
-#pragma once
-
 /*
-TurboJson general API include file.
+TurboJson implementation.
 
 BSD 3-Clause License
 
@@ -34,37 +32,43 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cassert>
 
 
-struct JsonContext {
-    uint8_t *jsonbuffer;
-    uint32_t jsonbufferSize;
-    uint32_t jsonbufferMax;
-    uint32_t *dom;
-    uint32_t domIdx;
-    uint32_t domSz;
-    uint32_t *values;
-    uint32_t valuesIdx;
-    uint32_t valuesSz;
-};
+#include "turbojson.h"
+#include "platform.h"
 
 
-#if defined (__cplusplus)
-extern "C" {
-#endif
+extern "C" struct JsonContext* turbojson_allocateContext()
+{
+    struct JsonContext* context;
 
-    struct JsonContext* turbojson_allocateContext();
-    void turbojson_freeContext( struct JsonContext* ctx );
+    context = (struct JsonContext*) align_alloc( MAX_CACHE_LINE_SIZE, sizeof(struct JsonContext) );
 
-    void turbosjon_parsefile( struct JsonContext* ctx, const char* jsonfilename );
-    void turbosjon_parsebuffer( struct JsonContext* ctx, uint8_t* jsonbuffer, uint32_t size );
+    if (context != nullptr)
+    {
+        context->jsonbuffer = nullptr;
+        context->jsonbufferSize = 0;
+        context->jsonbufferMax = 0;
+        context->dom = nullptr;
+        context->domIdx = 0;
+        context->domSz = 0;
+        context->values = nullptr;
+        context->valuesIdx = 0;
+        context->valuesSz = 0;
+    }
 
-    void turbosjon_stringify( struct JsonContext* ctx );
-    void turbosjon_pretty( struct JsonContext* ctx );
-
-#if defined (__cplusplus)
+    return context;
 }
-#endif
 
+extern "C" void turbojson_freeContext( struct JsonContext* ctx )
+{
+    if (ctx->jsonbuffer) align_free(ctx->jsonbuffer);
+    if (ctx->dom) align_free(ctx->dom);
+    if (ctx->values) align_free(ctx->values);
+    align_free(ctx);
+}
 
