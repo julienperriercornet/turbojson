@@ -1,7 +1,5 @@
-#pragma once
-
 /*
-TurboJson general API include file.
+TurboJson sample.
 
 BSD 3-Clause License
 
@@ -34,42 +32,58 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <string.h>
+#include <time.h>
 
 
-struct JsonContext {
-    uint8_t *jsonbuffer;
-    uint32_t jsonbufferSize;
-    uint32_t jsonbufferMax;
-    uint32_t *dom;
-    uint32_t domIdx;
-    uint32_t domSz;
-    uint32_t *values;
-    uint32_t valuesIdx;
-    uint32_t valuesSz;
-    uint8_t *jsonout;
-    uint32_t jsonoutIdx;
-    uint32_t jsonoutMax;
-};
+#include "../turbojson.h"
+#include "../platform.h"
 
 
-#if defined (__cplusplus)
-extern "C" {
-#endif
-
-    struct JsonContext* turbojson_allocateContext();
-    void turbojson_freeContext( struct JsonContext* ctx );
-
-    void turbojson_parsefile( struct JsonContext* ctx, const char* jsonfilename );
-    void turbojson_parsebuffer( struct JsonContext* ctx, uint8_t* jsonbuffer, uint32_t size, uint32_t allocsize );
-
-    void turbojson_stringify( struct JsonContext* ctx );
-    void turbojson_pretty( struct JsonContext* ctx, bool spaces, uint32_t numberSpaces, bool linereturn=true );
-
-    void turbojson_writefile( struct JsonContext* ctx, const char* jsonfilename );
-
-#if defined (__cplusplus)
+static void stringify( const char* in, const char* out )
+{
+    struct JsonContext* jsonctx = turbojson_allocateContext();
+    clock_t start = clock();
+    turbojson_parsefile( jsonctx, in );
+    clock_t c1 = clock();
+    printf("parse in %.6fs\n", double(c1-start)/CLOCKS_PER_SEC);
+    //turbojson_stringify( jsonctx );
+    clock_t c2 = clock();
+    //printf("stringify in %.6fs\n", double(c2-c1)/CLOCKS_PER_SEC);
+    turbojson_writefile( jsonctx, out );
+    turbojson_freeContext( jsonctx );
 }
-#endif
 
 
+static void pretty( const char* in, const char* out )
+{
+    struct JsonContext* jsonctx = turbojson_allocateContext();
+    turbojson_parsefile( jsonctx, in );
+    turbojson_pretty( jsonctx, true, 2 );
+    turbojson_writefile( jsonctx, out );
+    turbojson_freeContext( jsonctx );
+}
+
+
+int main( int argc, const char** argv )
+{
+    if (argc != 4)
+    {
+        printf("turbojson sample v0.2\n"
+        "(C) 2024, Julien Perrier-cornet. Free software under BSD 3-Clause License.\n");
+        return 1;
+    }
+
+    clock_t start = clock();
+
+    if (strcmp(argv[1], "--stringify") == 0)
+        stringify(argv[2], argv[3]);
+    else if (strcmp(argv[1], "--pretty") == 0)
+        pretty(argv[2], argv[3]);
+
+    printf("%s -> %s in %.6fs\n", argv[2], argv[3],  double(clock()-start)/CLOCKS_PER_SEC);
+
+    return 0;
+}

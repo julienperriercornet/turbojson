@@ -20,6 +20,7 @@ endif()
 set(
     SOURCE_FILES
     aligned_string.h
+    turbojson.cpp
     turbojson.h
     platform.h)
 

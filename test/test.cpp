@@ -1,7 +1,5 @@
-#pragma once
-
 /*
-TurboJson general API include file.
+TurboJson Unit Tests.
 
 BSD 3-Clause License
 
@@ -33,43 +31,30 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-#include <cstdint>
-
-
-struct JsonContext {
-    uint8_t *jsonbuffer;
-    uint32_t jsonbufferSize;
-    uint32_t jsonbufferMax;
-    uint32_t *dom;
-    uint32_t domIdx;
-    uint32_t domSz;
-    uint32_t *values;
-    uint32_t valuesIdx;
-    uint32_t valuesSz;
-    uint8_t *jsonout;
-    uint32_t jsonoutIdx;
-    uint32_t jsonoutMax;
-};
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 
-#if defined (__cplusplus)
-extern "C" {
-#endif
+int main( int argc, const char** argv )
+{
+    int status = -1;
 
-    struct JsonContext* turbojson_allocateContext();
-    void turbojson_freeContext( struct JsonContext* ctx );
+    if (argc != 2) return -2;
 
-    void turbojson_parsefile( struct JsonContext* ctx, const char* jsonfilename );
-    void turbojson_parsebuffer( struct JsonContext* ctx, uint8_t* jsonbuffer, uint32_t size, uint32_t allocsize );
+    /*
+    if (strcmp(argv[1], "test_lzaahe_context") == 0)
+        status = test_lzaahe_context();
+    else if (strcmp(argv[1], "test_lzaahe_sort") == 0)
+        status = test_lzaahe_sort();
+    else if (strcmp(argv[1], "test_arith32") == 0)
+        status = test_arith32();
+    else if (strcmp(argv[1], "test_arith64") == 0)
+        status = test_arith64();
+    else if (strcmp(argv[1], "test_bitio") == 0)
+        status = test_lzaahe_bitio();
+    */
 
-    void turbojson_stringify( struct JsonContext* ctx );
-    void turbojson_pretty( struct JsonContext* ctx, bool spaces, uint32_t numberSpaces, bool linereturn=true );
-
-    void turbojson_writefile( struct JsonContext* ctx, const char* jsonfilename );
-
-#if defined (__cplusplus)
+    return status;
 }
-#endif
-
 
